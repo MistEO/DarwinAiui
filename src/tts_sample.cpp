@@ -4,17 +4,14 @@
 * 高效便捷手段，非常符合信息时代海量数据、动态更新和个性化查询的需求。
 */
 
-#include "tts_sample.h"
-#include "msp_cmn.h"
-#include "msp_errors.h"
-#include "qtts.h"
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-typedef int SR_DWORD;
-typedef short int SR_WORD;
+
+#include "msp_cmn.h"
+#include "msp_errors.h"
+#include "qtts.h"
 
 /* wav音频头部格式 */
 typedef struct _wave_pcm_hdr {
@@ -51,7 +48,6 @@ wave_pcm_hdr default_wav_hdr = {
     { 'd', 'a', 't', 'a' },
     0
 };
-
 /* 文本合成 */
 int text_to_speech(const char* src_text, const char* des_path, const char* params)
 {
@@ -85,7 +81,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
         fclose(fp);
         return ret;
     }
-    printf("正在合成并播放tts ...\n");
+    printf("正在合成 ...\n");
     fwrite(&wav_hdr, sizeof(wav_hdr), 1, fp); //添加wav音频头，使用采样率为16000
     while (1) {
         /* 获取合成音频 */
@@ -98,6 +94,8 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
         }
         if (MSP_TTS_FLAG_DATA_END == synth_status)
             break;
+        printf(">");
+        usleep(150 * 1000); //防止频繁占用CPU
     }
     printf("\n");
     if (MSP_SUCCESS != ret) {

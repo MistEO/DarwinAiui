@@ -21,7 +21,7 @@ public:
     const char* LoginParams = "appid = 591acb84, work_dir = .";
     const uint BufferSize = 4096;
     //TTS参数
-    const char* TtsSessionBeginParams = "engine_type = local,voice_name=xiaoyan, text_encoding = UTF8, tts_res_path = fo|res/tts/xiaoyan.jet;fo|res/tts/common.jet, sample_rate = 16000, speed = 50, volume = 50, pitch = 50, rdn = 2";
+    const char* TtsSessionBeginParams = "voice_name = xiaoyan, text_encoding = utf8, sample_rate = 16000, speed = 50, volume = 50, pitch = 50, rdn = 2";
     const char* WavFilename = "tts.wav";
 
     ~AiuiHelper();
