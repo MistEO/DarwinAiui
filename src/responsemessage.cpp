@@ -27,13 +27,13 @@ void ResponseMessage::_unpack(const std::string& message)
 
     _header.clear();
     header_map.clear();
-    for (++iter; iter != lines.end() && !iter->empty(); ++iter) {
-        _header += *iter + "\n";
+    for (++iter; !iter->empty(); ++iter) {
+        _header += *iter + "\r\n";
         _unpack_header_line(*iter);
     }
 
-    int data_pos = (first_line() + header() + "\n").length();
-    data = source.substr(data_pos, source.length() - data_pos - 1);
+    int data_pos = (first_line() + header() + "\r\n").length();
+    data = source.substr(data_pos, source.length() - data_pos);
 }
 
 void ResponseMessage::_unpack_status_line(const std::string& status_line)
@@ -56,7 +56,7 @@ void ResponseMessage::_unpack_status_line(const std::string& status_line)
 
 void ResponseMessage::_unpack_header_line(const std::string& header_line)
 {
-    auto pair = _split_string(header_line, ":");
+    auto pair = _split_string(header_line, ": ");
     if (pair.size() != 2) {
         std::cerr << "Request header segmentation error: " << header_line << std::endl;
         return;
@@ -66,7 +66,7 @@ void ResponseMessage::_unpack_header_line(const std::string& header_line)
 
 std::string ResponseMessage::first_line() const
 {
-    return _status_line + "\n";
+    return _status_line + "\r\n";
 }
 
 std::string ResponseMessage::header() const

@@ -173,10 +173,10 @@ void AiuiHelper::_on_speech_result(const char* result, char is_last)
 
 bool AiuiHelper::_order_match(const std::string& text) const
 {
-    if (text.find("别说了") != -1) {
+    if (text.find("别说了") != std::string::npos) {
         RequestMessage request_message;
-        request_message.request_type = "GET";
-        request_message.resource_type = "/stop_audio";
+        request_message.method = "GET";
+        request_message.uri = "/stop_audio";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
         return true;
@@ -263,10 +263,9 @@ void AiuiHelper::_download_and_play_audio(const std::string& url) const
 void AiuiHelper::_request_audio(const std::string& filename) const
 {
     RequestMessage request_message;
-    request_message.request_type = "POST";
-    request_message.resource_type = "/audio";
+    request_message.method = "GET";
     char cwd[1024];
     getcwd(cwd, 1024);
-    request_message.header_map["FilePath"] = std::string() + cwd + "/" + filename;
+    request_message.uri = "/audio?filepath=" + std::string() + cwd + "/" + filename;
     send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
 }

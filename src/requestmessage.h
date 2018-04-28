@@ -12,8 +12,8 @@ public:
     std::string header() const;
     std::string to_string() const;
 
-    std::string request_type;
-    std::string resource_type;
+    std::string method;
+    std::string uri;
 };
 
 #endif // REQUESTMESSAGE_H
