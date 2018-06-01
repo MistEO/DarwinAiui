@@ -270,13 +270,14 @@ void AiuiHelper::_on_speech_result(const char* result, char is_last)
 
 bool AiuiHelper::_order_match(const std::string& text) const
 {
+    bool ret = false;
     if (text.find("别说了") != std::string::npos) {
         RequestMessage request_message;
         request_message.method = "GET";
         request_message.uri = "/stop_audio";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     static int x = 0;
     if (text.find("前进") != std::string::npos || text.find("向前走") != std::string::npos) {
@@ -285,7 +286,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/walk_start";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("走快点") != std::string::npos) {
         RequestMessage request_message;
@@ -294,7 +295,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/walk?x=" + std::to_string(x);
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("停下来") != std::string::npos) {
         RequestMessage request_message;
@@ -303,7 +304,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/walk_stop";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("自我介绍") != std::string::npos) {
         RequestMessage request_message;
@@ -311,7 +312,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/action/41?audio=/darwin/Data/mp3/Introduction.mp3";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("站起来") != std::string::npos) {
         RequestMessage request_message;
@@ -319,7 +320,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/action/1";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("坐下") != std::string::npos) {
         RequestMessage request_message;
@@ -327,7 +328,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/action/15";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
     if (text.find("爬起来") != std::string::npos) {
         RequestMessage request_message;
@@ -335,9 +336,11 @@ bool AiuiHelper::_order_match(const std::string& text) const
         request_message.uri = "/motor/fall_up";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
-        return true;
+        ret = true;
     }
-    return false;
+    char recv_buf[4096] = "";
+    recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
+    return ret;
 }
 
 void AiuiHelper::_write_text(const std::string& text)
@@ -426,10 +429,13 @@ void AiuiHelper::_request_audio(const std::string& filename) const
     // std::string play_cmd = "mplayer " + std::string() + cwd + "/" + filename;
     // system(play_cmd.c_str());
     send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+    char recv_buf[4096] = "";
+    recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
 }
 
 std::string AiuiHelper::_request_mic() const
 {
+    std::cout << "Request Mic" << std::endl;
     RequestMessage request;
     request.method = "GET";
     request.uri = "/mic?time=5";

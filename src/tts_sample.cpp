@@ -81,7 +81,7 @@ int text_to_speech(const char* src_text, const char* des_path, const char* param
         fclose(fp);
         return ret;
     }
-    printf("正在合成 ...\n");
+    printf("合成语音并请求播放\n");
     fwrite(&wav_hdr, sizeof(wav_hdr), 1, fp); //添加wav音频头，使用采样率为16000
     while (1) {
         /* 获取合成音频 */
