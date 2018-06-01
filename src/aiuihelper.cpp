@@ -1,5 +1,6 @@
 #include "aiuihelper.h"
 
+#include <malloc.h>
 #include <regex>
 #include <string>
 #include <sys/socket.h>
@@ -26,7 +27,8 @@ AiuiHelper& AiuiHelper::ins()
 
 void AiuiHelper::start()
 {
-    _speech_transform();
+    // _speech_transform();
+    _file_transform("demo.wav");
     _wait_for_finished();
 }
 
@@ -119,6 +121,100 @@ void AiuiHelper::_speech_transform(int record_sec)
     }
 
     sr_uninit(&iat);
+}
+
+void AiuiHelper::_file_transform(const std::string& filename)
+{
+    int errcode = 0;
+    FILE* f_pcm = NULL;
+    char* p_pcm = NULL;
+    unsigned long pcm_count = 0;
+    unsigned long pcm_size = 0;
+    unsigned long read_size = 0;
+    int FRAME_LEN = 640;
+    struct speech_rec iat;
+
+    if (filename.empty()) {
+        return;
+    }
+
+    f_pcm = fopen(filename.c_str(), "rb");
+    if (NULL == f_pcm) {
+        printf("\nopen [%s] failed! \n", filename.c_str());
+        fclose(f_pcm);
+        f_pcm = NULL;
+        return;
+    }
+
+    fseek(f_pcm, 0, SEEK_END);
+    pcm_size = ftell(f_pcm);
+    fseek(f_pcm, 0, SEEK_SET);
+
+    p_pcm = (char*)malloc(pcm_size);
+    if (NULL == p_pcm) {
+        printf("\nout of memory! \n");
+        free(p_pcm);
+        p_pcm = NULL;
+        sr_stop_listening(&iat);
+        sr_uninit(&iat);
+        return;
+    }
+
+    read_size = fread((void*)p_pcm, 1, pcm_size, f_pcm);
+    if (read_size != pcm_size) {
+        printf("\nread [%s] error!\n", filename.c_str());
+        sr_stop_listening(&iat);
+        sr_uninit(&iat);
+        return;
+    }
+
+    errcode = sr_init(&iat, SessionBeginParams, SR_USER, this);
+    if (errcode) {
+        printf("speech recognizer init failed : %d\n", errcode);
+        sr_stop_listening(&iat);
+        sr_uninit(&iat);
+        return;
+    }
+
+    errcode = sr_start_listening(&iat);
+    if (errcode) {
+        printf("\nsr_start_listening failed! error code:%d\n", errcode);
+        sr_stop_listening(&iat);
+        sr_uninit(&iat);
+        return;
+    }
+
+    while (1) {
+        unsigned int len = 10 * FRAME_LEN; /* 200ms audio */
+        int ret = 0;
+
+        if (pcm_size < 2 * len)
+            len = pcm_size;
+        if (len <= 0)
+            break;
+
+        ret = sr_write_audio_data(&iat, &p_pcm[pcm_count], len);
+
+        if (0 != ret) {
+            printf("\nwrite audio data failed! error code:%d\n", ret);
+
+            sr_stop_listening(&iat);
+            sr_uninit(&iat);
+            return;
+        }
+
+        pcm_count += (long)len;
+        pcm_size -= (long)len;
+    }
+
+    errcode = sr_stop_listening(&iat);
+    if (errcode) {
+        printf("\nsr_stop_listening failed! error code:%d \n", errcode);
+
+        sr_stop_listening(&iat);
+        sr_uninit(&iat);
+        return;
+    }
 }
 
 void AiuiHelper::_wait_for_finished() const

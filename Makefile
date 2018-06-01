@@ -19,7 +19,7 @@ INCS += ./include/
 TARGET = Aiui
 
 # The C program compiler.
-CC = g++ -Wall -std=c++17
+CC = g++ -Wall -std=c++11 -g
 
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.
@@ -59,7 +59,7 @@ prepare :
 # Rules for generating object files (.o).
 #----------------------------------------
 $(OBJECTDIR)/%.o : %.cpp
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@  -c $< -MD -MF $(patsubst %.o, %.d, $@)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $< -MD -MF $(patsubst %.o, %.d, $@)
 
 # Rules for generating the executable.
 #-------------------------------------

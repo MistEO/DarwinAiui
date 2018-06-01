@@ -54,6 +54,7 @@ private:
     void _wait_for_working() const;
     void _destroy();
     void _speech_transform(int record_sec = 5);
+    void _file_transform(const std::string& filename);
     void _wait_for_finished() const;
     void _write_text(const std::string& text);
     void _result_parse(const VA::Json::Value& data) const;
