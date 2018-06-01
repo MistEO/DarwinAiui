@@ -2,13 +2,13 @@
 
 #define Aiui AiuiHelper::ins()
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <pthread.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 
 int main()
 {
@@ -20,8 +20,8 @@ int main()
     struct sockaddr_in srv_addr;
     bzero(&srv_addr, sizeof(srv_addr));
     srv_addr.sin_family = AF_INET;
-    srv_addr.sin_port =htons((u_short)1680);
-    inet_pton(AF_INET, "192.168.43.16", &srv_addr.sin_addr);
+    srv_addr.sin_port = htons((u_short)1680);
+    inet_pton(AF_INET, "127.0.0.1", &srv_addr.sin_addr);
 
     //多次尝试连接
     int count = 0;

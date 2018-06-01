@@ -11,6 +11,7 @@
 #include "msp_errors.h"
 #include "qisr.h"
 #include "requestmessage.h"
+#include "responsemessage.h"
 #include "speech_recognizer.h"
 #include "tts_sample.h"
 
@@ -28,7 +29,7 @@ AiuiHelper& AiuiHelper::ins()
 void AiuiHelper::start()
 {
     // _speech_transform();
-    _file_transform("demo.wav");
+    _file_transform(_request_mic());
     _wait_for_finished();
 }
 
@@ -290,7 +291,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
         RequestMessage request_message;
         request_message.method = "GET";
         x += 5;
-        request_message.uri = "/motor/walk?x="+std::to_string(x);
+        request_message.uri = "/motor/walk?x=" + std::to_string(x);
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
         return true;
@@ -422,7 +423,20 @@ void AiuiHelper::_request_audio(const std::string& filename) const
     char cwd[1024];
     getcwd(cwd, 1024);
     request_message.uri = "/audio?filepath=" + std::string() + cwd + "/" + filename;
-    std::string play_cmd = "mplayer " + std::string() + cwd + "/" + filename;
-    system(play_cmd.c_str());
-    //send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+    // std::string play_cmd = "mplayer " + std::string() + cwd + "/" + filename;
+    // system(play_cmd.c_str());
+    send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+}
+
+std::string AiuiHelper::_request_mic() const
+{
+    RequestMessage request;
+    request.method = "GET";
+    request.uri = "/mic?time=5";
+    send(resource_socket_fd, request.to_string().data(), request.to_string().length(), 0);
+
+    char recv_buf[4096] = "";
+    recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
+    ResponseMessage response(recv_buf);
+    return response.get_data();
 }

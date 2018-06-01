@@ -62,6 +62,7 @@ private:
     bool _order_match(const std::string& text) const;
     void _download_and_play_audio(const std::string& url) const;
     void _request_audio(const std::string& filename) const;
+    std::string _request_mic() const;
 
     static AiuiHelper unique_instance;
 

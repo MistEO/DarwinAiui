@@ -19,7 +19,7 @@ INCS += ./include/
 TARGET = Aiui
 
 # The C program compiler.
-CC = g++ -Wall -std=c++11 -g
+CC = g++-5 -Wall -std=c++11 -g
 
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.

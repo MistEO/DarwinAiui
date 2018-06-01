@@ -14,9 +14,9 @@ void ResponseMessage::_unpack(const std::string& message)
 {
     std::string source(message);
     //转换为小写
-    std::transform(source.begin(), source.end(), source.begin(), ::tolower);
+    // std::transform(source.begin(), source.end(), source.begin(), ::tolower);
     //按行分割
-    std::vector<std::string> lines(_split_string(source, "\n"));
+    std::vector<std::string> lines(_split_string(source, "\r\n"));
     if (lines.size() < 2) {
         std::cerr << "Response message segmentation error:" << source;
         return;
