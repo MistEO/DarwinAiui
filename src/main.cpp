@@ -39,7 +39,15 @@ int main(int argc, char ** argv)
 
     int c = 0;
     while (c != 27) {
-        Aiui.start();
+        if (argc > 2) {
+            Aiui.start(argv[1], argv[2]);
+        }
+        else if (argc > 1) {
+            Aiui.start(argv[1]);
+        }
+        else {
+            Aiui.start();
+        }
         c = getchar();
     }
     close(socket_fd);

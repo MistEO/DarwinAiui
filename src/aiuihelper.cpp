@@ -26,10 +26,16 @@ AiuiHelper& AiuiHelper::ins()
     return unique_instance;
 }
 
-void AiuiHelper::start()
+void AiuiHelper::start(const std::string& ip, const std::string& user)
 {
     // _speech_transform();
-    _file_transform(_request_mic());
+    std::string filename = _request_mic();
+    this->ip = ip;
+    this->user = user;
+    std::string cpmic_cmd = "scp " + user + "@" + ip + ":" + filename + " " + filename;
+    //std::cout << cpmic_cmd << std::endl;
+    system(cpmic_cmd.c_str());
+    _file_transform(filename);
     _wait_for_finished();
 }
 
@@ -309,7 +315,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
     if (text.find("自我介绍") != std::string::npos) {
         RequestMessage request_message;
         request_message.method = "GET";
-        request_message.uri = "/motor/action/41?audio=/darwin/Data/mp3/Introduction.mp3";
+        request_message.uri = "/motor/action/41?audio=/"+user+"/Data/mp3/Introduction.mp3";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
         ret = true;
@@ -329,6 +335,14 @@ bool AiuiHelper::_order_match(const std::string& text) const
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
         ret = true;
+    }    
+    if (text.find("跳个舞") != std::string::npos || text.find("街舞") != std::string::npos) {
+        RequestMessage request_message;
+        request_message.method = "GET";
+        request_message.uri = "/motor/action/17";
+        send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+        _state = State_Finished;
+        ret = true;
     }
     if (text.find("爬起来") != std::string::npos) {
         RequestMessage request_message;
@@ -338,8 +352,10 @@ bool AiuiHelper::_order_match(const std::string& text) const
         _state = State_Finished;
         ret = true;
     }
-    char recv_buf[4096] = "";
-    recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
+    if (ret) {
+        char recv_buf[4096] = "";
+        recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
+    }
     return ret;
 }
 
@@ -421,15 +437,22 @@ void AiuiHelper::_download_and_play_audio(const std::string& url) const
 
 void AiuiHelper::_request_audio(const std::string& filename) const
 {
+    std::string cptts_cmd = "scp " + filename + " " + user +"@" + ip + ":/tmp/" + filename;
+    system(cptts_cmd.c_str());
     RequestMessage request_message;
     request_message.method = "GET";
-    char cwd[1024];
-    getcwd(cwd, 1024);
-    request_message.uri = "/audio?filepath=" + std::string() + cwd + "/" + filename;
+    // char cwd[1024];
+    // getcwd(cwd, 1024);
+    request_message.uri = "/audio?filepath=/tmp/" + filename;
     // std::string play_cmd = "mplayer " + std::string() + cwd + "/" + filename;
     // system(play_cmd.c_str());
     send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+    
+    request_message.uri = "/motor/action/6";
+    send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
+    
     char recv_buf[4096] = "";
+    recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
     recv(resource_socket_fd, recv_buf, sizeof(recv_buf), 0);
 }
 

@@ -28,7 +28,7 @@ public:
 
     static AiuiHelper& ins();
 
-    void start();
+    void start(const std::string & ip = "127.0.0.1", const std::string & user = "robotis");
 
     int resource_socket_fd = -1;
 
@@ -71,4 +71,6 @@ private:
     char* _speech_result = nullptr;
     uint _speech_buffersize = BufferSize;
     mutable UiState _state = State_Idle;
+    std::string ip;
+    std::string user;
 };
