@@ -339,7 +339,7 @@ bool AiuiHelper::_order_match(const std::string& text) const
     if (text.find("跳个舞") != std::string::npos || text.find("街舞") != std::string::npos) {
         RequestMessage request_message;
         request_message.method = "GET";
-        request_message.uri = "/motor/action/17";
+        request_message.uri = "/motor/action/17?audio=/home/robotis/mreo/dance.mp3";
         send(resource_socket_fd, request_message.to_string().data(), request_message.to_string().length(), 0);
         _state = State_Finished;
         ret = true;
